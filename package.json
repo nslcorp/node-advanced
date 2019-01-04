@@ -1,0 +1,19 @@
+{
+  "name": "node-advanced",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "pm2": "node_modules/.bin/pm2 start index.js -i 0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.4"
+  },
+  "devDependencies": {
+    "pm2": "^3.2.4"
+  }
+}
