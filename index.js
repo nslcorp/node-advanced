@@ -1,29 +1,42 @@
-process.env.UV_THREADPOOL_SIZE = 1;
+const express = require('express');
+const mongoose = require('mongoose');
+const cookieSession = require('cookie-session');
+const passport = require('passport');
+const bodyParser = require('body-parser');
+const keys = require('./config/keys');
 
-const express = require('express')
-const crypto = require('crypto')
+require('./models/User');
+require('./models/Blog');
+require('./services/passport');
 
+mongoose.Promise = global.Promise;
+mongoose.connect(keys.mongoURI, { useMongoClient: true });
 
 const app = express();
-const PORT = 3000
 
-
-app.get('/', (req, res) => {
-  crypto.pbkdf2('a', 'b', 100000, 512, 'sha512', () => {
-    res.send('pbkdf2 -- it done')
+app.use(bodyParser.json());
+app.use(
+  cookieSession({
+    maxAge: 30 * 24 * 60 * 60 * 1000,
+    keys: [keys.cookieKey]
   })
+);
+app.use(passport.initialize());
+app.use(passport.session());
 
-  // res.send('pbkdf2 -- it done')
+require('./routes/authRoutes')(app);
+require('./routes/blogRoutes')(app);
 
-})
+if (['production'].includes(process.env.NODE_ENV)) {
+  app.use(express.static('client/build'));
 
-app.get('/fast', (req, res) => {
-  res.send('This is fast...')
+  const path = require('path');
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve('client', 'build', 'index.html'));
+  });
+}
 
-})
-
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log('Listening :' + PORT)
-})
-
-
+  console.log(`Listening on port`, PORT);
+});
