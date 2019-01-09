@@ -14,9 +14,26 @@ module.exports = app => {
   });
 
   app.get('/api/blogs', requireLogin, async (req, res) => {
+
+    const redis = require('redis')
+    const {promisify} = require('util');
+    const client = redis.createClient('redis://127.0.0.1:6379');
+    client.get = promisify(client.get)
+
+    const rawBlogsData = await client.get(req.user.id);
+
+    if(rawBlogsData){
+      console.log('FROM REDIS')
+
+      return res.send(JSON.parse(rawBlogsData));
+    }
+
     const blogs = await Blog.find({ _user: req.user.id });
+    console.log('FROM MONGODB')
 
     res.send(blogs);
+    const what = client.set(req.user.id, JSON.stringify(blogs))
+    console.log(what)
   });
 
   app.post('/api/blogs', requireLogin, async (req, res) => {
