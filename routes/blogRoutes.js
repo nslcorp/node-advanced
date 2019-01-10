@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const requireLogin = require('../middlewares/requireLogin');
+const cleanCache = require('../middlewares/cleanCache');
 
 const Blog = mongoose.model('Blog');
 
@@ -13,27 +14,30 @@ module.exports = app => {
     res.send(blog);
   });
 
-  app.get('/api/blogs', requireLogin, async (req, res) => {
+  app.get('/api/blogs', requireLogin, cleanCache, async (req, res) => {
 
-    const redis = require('redis')
-    const {promisify} = require('util');
-    const client = redis.createClient('redis://127.0.0.1:6379');
-    client.get = promisify(client.get)
-
-    const rawBlogsData = await client.get(req.user.id);
-
-    if(rawBlogsData){
-      console.log('FROM REDIS')
-
-      return res.send(JSON.parse(rawBlogsData));
-    }
-
-    const blogs = await Blog.find({ _user: req.user.id });
-    console.log('FROM MONGODB')
-
+    const blogs = await Blog.find({ _user: req.user.id }).cache({key: req.user.id});
     res.send(blogs);
-    const what = client.set(req.user.id, JSON.stringify(blogs))
-    console.log(what)
+
+    // const redis = require('redis')
+    // const {promisify} = require('util');
+    // const client = redis.createClient('redis://127.0.0.1:6379');
+    // client.get = promisify(client.get)
+    //
+    // const rawBlogsData = await client.get(req.user.id);
+    //
+    // if(rawBlogsData){
+    //   console.log('FROM REDIS')
+    //
+    //   return res.send(JSON.parse(rawBlogsData));
+    // }
+    //
+    // const blogs = await Blog.find({ _user: req.user.id });
+    // console.log('FROM MONGODB')
+    //
+    // res.send(blogs);
+    // const what = client.set(req.user.id, JSON.stringify(blogs))
+    // console.log(what)
   });
 
   app.post('/api/blogs', requireLogin, async (req, res) => {
