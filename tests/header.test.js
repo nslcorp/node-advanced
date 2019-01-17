@@ -1,12 +1,10 @@
 const puppeteer = require('puppeteer')
 const sessionFactory = require('./factories/sessionFactory')
+const userFactory = require('./factories/userFactory')
 
 let browser;
 let page;
 
-beforeAll(async () => {
-
-})
 
 beforeEach(async () => {
   browser = await puppeteer.launch({headless: false})
@@ -15,7 +13,7 @@ beforeEach(async () => {
 })
 
 afterEach(async () => {
-  //await browser.close()
+  await browser.close()
 })
 
 test('the header has correct text', async () => {
@@ -30,19 +28,17 @@ test('click login button to start oAuth flow', async () => {
   expect(url).toMatch(/accounts\.google\.com/)
 })
 
-test('When sign in - shows logout button', async (req, res, next) => {
-  const id = '5c349a3ea58e7028c3763649'
-
-
-  const {session, sig} = sessionFactory()
+test('When sign in - shows logout button', async () => {
+  const user = await userFactory()
+  const {session, sig} = sessionFactory(user)
 
   await page.setCookie({name: 'session', value: session})
   await page.setCookie({name: 'session.sig', value: sig})
-  // await page.goto('localhost:3000')
-  // await page.waitFor(3000)
+  await page.goto('localhost:3000')
+  await page.waitFor(3000)
   //
-  // const text = await page.$eval('.logout', el => el.innerHTML)
-  // expect(text).toEqual('Logout')
+  const text = await page.$eval('.logout', el => el.innerHTML)
+  expect(text).toEqual('Logout')
 })
 
 //370Rvq_1sYp-C991zDQkEiXd0wU
