@@ -1,23 +1,21 @@
-const puppeteer = require('puppeteer')
-const sessionFactory = require('./factories/sessionFactory')
-const userFactory = require('./factories/userFactory')
+const Page = require('./helpers/Page')
 
-let browser;
 let page;
 
+beforeAll(async () => {
+  page = await Page.build()
+})
 
 beforeEach(async () => {
-  browser = await puppeteer.launch({headless: false})
-  page = await browser.newPage();
   await page.goto('localhost:3000')
 })
 
-afterEach(async () => {
-  await browser.close()
+afterAll(async () => {
+  await page.close()
 })
 
 test('the header has correct text', async () => {
-  const textLogo = await page.$eval('a.brand-logo', el => el.innerHTML)
+  const textLogo = await page.getContent('a.brand-logo')
   expect(textLogo).toEqual('Blogster')
 })
 
@@ -29,17 +27,9 @@ test('click login button to start oAuth flow', async () => {
 })
 
 test('When sign in - shows logout button', async () => {
-  const user = await userFactory()
-  const {session, sig} = sessionFactory(user)
 
-  await page.setCookie({name: 'session', value: session})
-  await page.setCookie({name: 'session.sig', value: sig})
-  await page.goto('localhost:3000')
-  await page.waitFor(3000)
-  //
-  const text = await page.$eval('.logout', el => el.innerHTML)
+  await page.login()
+  await page.waitFor('.logout')
+  const text = await page.getContent('.logout')
   expect(text).toEqual('Logout')
 })
-
-//370Rvq_1sYp-C991zDQkEiXd0wU
-//eyJwYXNzcG9ydCI6eyJ1c2VyIjoiNWMzNDlhM2VhNThlNzAyOGMzNzYzNjQ5In19
