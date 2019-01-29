@@ -14,7 +14,7 @@ afterAll(async () => {
   await page.close()
 })
 
-test('the header has correct text', async () => {
-  const textLogo = await page.getContent('a.brand-logo')
-  expect(textLogo).toEqual('Blogster')
+test('When loged in, can see blog creation form', async () => {
+  await page.login()
+  await page.goto('localhost:3000/blogs')
 })
