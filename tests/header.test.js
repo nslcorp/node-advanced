@@ -30,6 +30,6 @@ test('When sign in - shows logout button', async () => {
 
   await page.login()
   await page.waitFor('.logout')
-  const text = await page.getContent('.logout')
+  const text = await page.getContent('.right .logout')
   expect(text).toEqual('Logout')
 })

@@ -66,33 +66,35 @@ describe('When logged in', function () {
     });
   });
 
+  const createBlogPost = () => fetch('/api/blogs', {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({title: 'My Title1', content: 'My Content'})
+  }).then(res => res.json())
+
+  const getBlogPosts = () => fetch('/api/blogs', {
+    method: 'GET',
+    credentials: 'same-origin',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }).then(res => res.json())
+
+  // describe('User is NOT login', function () {
+  //   it('User can NOT create blog post', async () => {
+  //     const result  = await page.evaluate(createBlogPost)
+  //     expect(result).toEqual({error: 'You must log in!'})
+  //   });
+  //
+  //   it('User can NOT get list of blog posts', async () => {
+  //     const result  = await page.evaluate(getBlogPosts)
+  //     expect(result).toEqual({error: 'You must log in!'})
+  //   });
+  // });
+
 });
 
-const createBlogPost = () => fetch('/api/blogs', {
-  method: 'POST',
-  credentials: 'same-origin',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({title: 'My Title1', content: 'My Content'})
-}).then(res => res.json())
 
-const getBlogPosts = () => fetch('/api/blogs', {
-  method: 'GET',
-  credentials: 'same-origin',
-  headers: {
-    'Content-Type': 'application/json'
-  }
-}).then(res => res.json())
-
-describe('User is NOT login', function () {
-  it('User can NOT create blog post', async () => {
-    const result  = await page.evaluate(createBlogPost)
-    expect(result).toEqual({error: 'You must log in!'})
-  });
-
-  it('User can NOT get list of blog posts', async () => {
-    const result  = await page.evaluate(getBlogPosts)
-    expect(result).toEqual({error: 'You must log in!'})
-  });
-});
